@@ -109,6 +109,12 @@ jobs:
         run: |
           cd ..
           zip ${{ github.event.repository.name }}/${{ github.event.repository.name }}-${{ github.ref_name }}.zip ${{ github.event.repository.name }} -r
+      - name: Upload PR Info
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
+          path: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
+          retention-days: 1
       - name: Upload zip
         uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
         with:
