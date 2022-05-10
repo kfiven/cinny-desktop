@@ -108,7 +108,7 @@ jobs:
       - name: Create zip including submodules
         run: |
           cd ..
-          zip ${{ github.event.repository.name }}/${{ github.ref_name }}.zip ${{ github.ref_name }} -r
+          zip ${{ github.event.repository.name }}/${{ github.event.repository.name }}.zip ${{ github.ref_name }} -r
       - name: Upload zip
         uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
         with:
