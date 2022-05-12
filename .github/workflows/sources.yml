@@ -26,10 +26,10 @@ jobs:
           requirements: resources/requirements.txt
       - name: Create cargo sources
         run: |
-          resources/flatpak-cargo-generator.py src-tauri/Cargo.lock -o cargo-sources.json
+          python resources/flatpak-cargo-generator.py src-tauri/Cargo.lock -o cargo-sources.json
       - name: Create node sources
         run: |
-          resources/flatpak-node-generator.py npm -r package-lock.json -o node-sources.json
+          python resources/flatpak-node-generator.py npm -r package-lock.json -o node-sources.json
       - run: ls -a
       - name: Upload PR Info
         uses: actions/upload-artifact@v3.0.0
