@@ -24,7 +24,7 @@ jobs:
       - uses: BSFishy/pip-action@v1
         with:
           packages: package
-          requirements: requirements.txt
+          requirements: resources/requirements.txt
       - name: Create cargo sources
         run: |
           resources/flatpak-cargo-generator.py src-tauri/Cargo.lock -o cargo-sources.json
