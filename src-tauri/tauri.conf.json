@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "cinny",
-    "version": "2.0.1"
+    "version": "2.0.2"
   },
   "build": {
     "distDir": "../cinny/dist",
@@ -47,7 +47,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-          "https://github.com/cinnyapp/cinny-desktop/releases/download/tauri/release.json"
+          "https://github.com/kfiven/cinny-desktop/releases/download/tauri/release.json"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE2NDc3NDBGMTAzNTk1NUYKUldSZmxUVVFEM1JIRnRuMjVRTkFOQ21lUFI5KzRMU0s4OWtBS1RNRUVCNE9LcE9GcExNZ2M2NHoK"
