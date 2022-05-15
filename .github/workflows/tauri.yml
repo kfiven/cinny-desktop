@@ -55,13 +55,13 @@ jobs:
       if: matrix.platform == 'macos-latest'
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: src-tauri/target/release/bundle/dmg/cinny_${{ steps.vars.outputs.tag }}_x64.dmg
+        name: cinny_${{ steps.vars.outputs.tag }}_x64.dmg
         path: src-tauri/target/release/bundle/dmg/cinny_${{ steps.vars.outputs.tag }}_x64.dmg
     - name: Upload PR Info
       if: matrix.platform == 'macos-latest'
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: src-tauri/target/release/bundle/macos/cinny.app.tar.gz
+        name: cinny.app.tar.gz
         path: src-tauri/target/release/bundle/macos/cinny.app.tar.gz
     # - name: Upload tagged release (macos)
     #   if: matrix.platform == 'macos-latest'
