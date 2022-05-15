@@ -7,10 +7,12 @@
 mod menu;
 
 fn main() {
+  let builder = tauri::Builder::default();
+
   #[cfg(target_os = "macos")]
   let builder = builder.menu(menu::menu());
 
-  tauri::Builder::default()
+  builder
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
