@@ -50,7 +50,6 @@ jobs:
       if: matrix.platform != 'windows-latest'
       id: vars
       run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
-    - run: ls -a
     - name: Upload PR Info
       if: matrix.platform == 'macos-latest'
       uses: actions/upload-artifact@v3.0.0
