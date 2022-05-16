@@ -58,13 +58,13 @@ jobs:
         name: cinny_${{ steps.vars.outputs.tag }}_x64.dmg
         path: src-tauri/target/release/bundle/dmg/cinny_${{ steps.vars.outputs.tag }}_x64.dmg
     - name: Upload PR Info
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'ubuntu-latest'
       uses: actions/upload-artifact@v3.0.0
       with:
         name: cinny_${{ steps.vars.outputs.tag }}_amd64.deb
         path: src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
     - name: Upload PR Info
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'windows-latest'
       uses: actions/upload-artifact@v3.0.0
       with:
         name: cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi
