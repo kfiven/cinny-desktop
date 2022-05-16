@@ -61,8 +61,14 @@ jobs:
       if: matrix.platform == 'macos-latest'
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: cinny.app.tar.gz
-        path: src-tauri/target/release/bundle/macos/cinny.app.tar.gz
+        name: cinny_${{ steps.vars.outputs.tag }}_amd64.deb
+        path: src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
+    - name: Upload PR Info
+      if: matrix.platform == 'macos-latest'
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi
+        path: src-tauri\target\release\bundle\msi\cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi
     # - name: Upload tagged release (macos)
     #   if: matrix.platform == 'macos-latest'
     #   uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
