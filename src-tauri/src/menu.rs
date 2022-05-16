@@ -6,11 +6,9 @@ pub(crate) fn menu() -> Menu {
             "Cinny",
             Menu::new()
                 .add_native_item(MenuItem::About(
-                    "Cinny".to_string(),
+                    "Cinny",
                     AboutMetadata::new(),
                 ))
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Services)
                 .add_native_item(MenuItem::Separator)
                 .add_native_item(MenuItem::Hide)
                 .add_native_item(MenuItem::HideOthers)
