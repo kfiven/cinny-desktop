@@ -62,6 +62,15 @@ jobs:
       with:
         name: cinny_${{ steps.vars.outputs.tag }}_amd64.deb
         path: src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
+    - name: Get app version (windows)
+      if: matrix.platform == 'windows-latest'
+      run: |
+        $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
+        $version = $json.package.version
+        echo "Version: ${version}"
+        echo "TAURI_VERSION=${version}" >> $Env:GITHUB_ENV
+        echo "${Env:TAURI_VERSION}"
+      shell: pwsh
     - name: Upload PR Info
       if: matrix.platform == 'windows-latest'
       uses: actions/upload-artifact@v3.0.0
