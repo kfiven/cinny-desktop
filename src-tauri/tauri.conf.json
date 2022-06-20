@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "Cinny",
-    "version": "2.0.3"
+    "version": "2.0.4"
   },
   "build": {
     "distDir": "../cinny/dist",
@@ -41,7 +41,11 @@
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
-        "timestampUrl": ""
+        "timestampUrl": "",
+        "wix": {
+          "bannerPath": "wix/banner.bmp",
+          "dialogImagePath": "wix/dialogImage.bmp"
+        }
       }
     },
     "updater": {
@@ -62,7 +66,8 @@
         "height": 724,
         "center": true,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "fileDropEnabled": false
       }
     ],
     "security": {
