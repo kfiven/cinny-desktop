@@ -49,7 +49,7 @@ jobs:
       # with:
       #   releaseId: ${{ steps.get_release.outputs.upload_url }}
     - name: Get app version (macos, ubuntu)
-      if: matrix.platform != 'windows-latest'
+      if: matrix.platform != 'windows-latest, macos-12'
       id: vars
       run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
     - name: Move dmg
@@ -73,9 +73,13 @@ jobs:
         TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
       with:
         args: -- --target aarch64-apple-darwin
+    - name: Get app version (macos-12)
+      if: matrix.platform == 'macos-12'
+      id: vars2
+      run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
     - name: Move macOS files (silicon)
       if: matrix.platform == 'macos-12'
-      run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/release/bundle/dmg/Cinny-desktop_aarch64.dmg"
+      run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars2.outputs.tag }}_aarch64.dmg" "src-tauri/target/release/bundle/dmg/Cinny-desktop_aarch64.dmg"
     - if: matrix.platform == 'macos-12'
       run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny-desktop_aarch64.app.tar.gz"
     - if: matrix.platform == 'macos-12'
