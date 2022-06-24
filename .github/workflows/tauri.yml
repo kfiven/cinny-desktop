@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-12, ubuntu-latest, windows-latest]
+        platform: [macos-latest, ubuntu-latest, windows-latest, macos-12]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -61,10 +61,10 @@ jobs:
         name: cinny_intel_x64.dmg
         path: src-tauri/target/release/bundle/dmg/cinny_intel_x64.dmg
     - name: Install rustup target aarch64 darwin
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'macos-12'
       run: rustup target add aarch64-apple-darwin
     - name: Build desktop app with Tauri
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'macos-12'
       uses: tauri-apps/tauri-action@v0.3.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,26 +73,26 @@ jobs:
       with:
         args: -- --target aarch64-apple-darwin
     - name: Move macOS files (silicon)
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'macos-12'
       run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/release/bundle/dmg/Cinny-desktop_aarch64.dmg"
-    - if: matrix.platform == 'macos-latest'
+    - if: matrix.platform == 'macos-12'
       run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny-desktop_aarch64.app.tar.gz"
-    - if: matrix.platform == 'macos-latest'
+    - if: matrix.platform == 'macos-12'
       run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/release/bundle/macos/Cinny-desktop_aarch64.app.tar.gz.sig"
     - name: Upload PR Info
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'macos-12'
       uses: actions/upload-artifact@v3.0.0
       with:
         name: Cinny-desktop_aarch64.dmg
         path: src-tauri/target/release/bundle/dmg/Cinny-desktop_aarch64.dmg
     - name: Upload PR Info
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'macos-12'
       uses: actions/upload-artifact@v3.0.0
       with:
         name: Cinny-desktop_aarch64.tar.gz
         path: src-tauri/target/release/bundle/macos/Cinny-desktop_aarch64.tar.gz
     - name: Upload PR Info
-      if: matrix.platform == 'macos-latest'
+      if: matrix.platform == 'macos-12'
       uses: actions/upload-artifact@v3.0.0
       with:
         name: Cinny-desktop_aarch64.tar.gz.sig
