@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
+        platform: [macos-12, ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -71,10 +71,10 @@ jobs:
         TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
         TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
       with:
-        args: -- --target universal-apple-darwin
+        args: -- --target aarch64-apple-darwin
     - name: Move macOS files (silicon)
       if: matrix.platform == 'macos-latest'
-      run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/release/bundle/dmg/Cinny-desktop_aarch64.dmg"
+      run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/release/bundle/dmg/Cinny-desktop_aarch64.dmg"
     - if: matrix.platform == 'macos-latest'
       run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny-desktop_aarch64.app.tar.gz"
     - if: matrix.platform == 'macos-latest'
