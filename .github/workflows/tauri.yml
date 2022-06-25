@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish-tauri:
-    if: always()
+    if: ${{ always() }}
     strategy:
       fail-fast: false
       matrix:
