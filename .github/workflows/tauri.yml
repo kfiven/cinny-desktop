@@ -105,15 +105,15 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: Cinny-desktop_aarch64.tar.gz
-        path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny-desktop_aarch64.tar.gz
+        name: Cinny-desktop_aarch64.app.tar.gz
+        path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny-desktop_aarch64.app.tar.gz
     - name: Upload PR Info
       # if: matrix.platform == 'macos-12'
       if: always()
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: Cinny-desktop_aarch64.tar.gz.sig
-        path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny-desktop_aarch64.tar.gz.sig
+        name: Cinny-desktop_aarch64.app.tar.gz.sig
+        path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny-desktop_aarch64.app.tar.gz.sig
     # - name: Move deb
     #   if: matrix.platform == 'ubuntu-latest'
     #   run: mv "src-tauri/target/release/bundle/deb/cinny_${{ steps.vars2.outputs.tag }}_amd64.deb" "src-tauri/target/release/bundle/deb/cinny_amd64.deb"
