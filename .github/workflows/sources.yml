@@ -31,7 +31,7 @@ jobs:
           python resources/flatpak-cargo-generator.py src-tauri/Cargo.lock -o cargo-sources.json
       - name: Create node sources
         run: |
-          flatpak-node-generator npm -R 'package-lock.json' -R 'cinny/package-lock.json' -o node-sources.json
+          flatpak-node-generator npm -r cinny/package-lock.json -o node-sources.json
       - run: ls -a
       - name: Upload PR Info
         uses: actions/upload-artifact@v3.0.0
