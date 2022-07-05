@@ -3,16 +3,14 @@
   windows_subsystem = "windows"
 )]
 
-#[cfg(target_os = "macos")]
-mod menu;
-
 fn main() {
-  let builder = tauri::Builder::default();
-
-  #[cfg(target_os = "macos")]
-  let builder = builder.menu(menu::menu());
-
-  builder
-    .run(tauri::generate_context!())
+  let context = tauri::generate_context!();
+  tauri::Builder::default()
+    .menu(if cfg!(target_os = "macos") {
+      tauri::Menu::os_default(&context.package_info().name)
+    } else {
+      tauri::Menu::default()
+    })
+    .run(context)
     .expect("error while running tauri application");
 }
