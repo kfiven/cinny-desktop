@@ -19,7 +19,9 @@ jobs:
         with:
           packages: |
             pipreqs
+            pipx
       - run: ls -a
+      - run: cd resources/node && pipx install . 
       - run: pipreqs resources
       - uses: BSFishy/pip-action@v1
         with:
