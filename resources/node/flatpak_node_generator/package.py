@@ -81,6 +81,10 @@ class SemVer:
         return SemVer(major, minor, patch, prerelease)
 
 
+class UnresolvedSource(NamedTuple):
+    integrity: Optional[Integrity]
+
+
 class ResolvedSource(NamedTuple):
     resolved: str
     integrity: Optional[Integrity]
@@ -102,7 +106,11 @@ class GitSource(NamedTuple):
     from_: Optional[str]
 
 
-PackageSource = Union[ResolvedSource, GitSource]
+class LocalSource(NamedTuple):
+    path: str
+
+
+PackageSource = Union[UnresolvedSource, ResolvedSource, GitSource, LocalSource]
 
 
 class Package(NamedTuple):

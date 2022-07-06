@@ -21,7 +21,14 @@ import types
 
 from ..integrity import Integrity
 from ..manifest import ManifestGenerator
-from ..package import GitSource, Package, PackageSource, ResolvedSource
+from ..package import (
+    GitSource,
+    LocalSource,
+    Package,
+    PackageSource,
+    ResolvedSource,
+    UnresolvedSource,
+)
 from ..requests import Requests
 from ..url_metadata import RemoteUrlMetadata
 from . import LockfileProvider, ModuleProvider, ProviderFactory, RCFileProvider
@@ -61,9 +68,16 @@ class NpmLockfileProvider(LockfileProvider):
                     from_ = from_[match.end('prefix') :]
 
                 source = self.parse_git_source(version, from_)
+            elif version.startswith('file:'):
+                source = LocalSource(path=version[len('file:') :])
             else:
                 integrity = Integrity.parse(info['integrity'])
-                source = ResolvedSource(resolved=info['resolved'], integrity=integrity)
+                if 'resolved' in info:
+                    source = ResolvedSource(
+                        resolved=info['resolved'], integrity=integrity
+                    )
+                else:
+                    source = UnresolvedSource(integrity=integrity)
 
             yield Package(name=name, version=version, source=source, lockfile=lockfile)
 
@@ -173,7 +187,7 @@ class NpmModuleProvider(ModuleProvider):
         self.index_entries[index_path] = index
 
     async def resolve_source(self, package: Package) -> ResolvedSource:
-        assert isinstance(package.source, ResolvedSource)
+        assert isinstance(package.source, (UnresolvedSource, ResolvedSource))
 
         # These results are going to be the same each time.
         if package.name not in self.registry_packages:
@@ -241,7 +255,7 @@ class NpmModuleProvider(ModuleProvider):
         self.all_lockfiles.add(package.lockfile)
         source = package.source
 
-        if isinstance(source, ResolvedSource):
+        if isinstance(source, (UnresolvedSource, ResolvedSource)):
             source = await self.resolve_source(package)
             assert source.resolved is not None
             assert source.integrity is not None
@@ -262,6 +276,14 @@ class NpmModuleProvider(ModuleProvider):
             path = self.gen.data_root / 'git-packages' / name
             self.git_sources[package.lockfile][path] = source
             self.gen.add_git_source(source.url, source.commit, path)
+
+        elif isinstance(source, LocalSource):
+            assert (package.lockfile.parent / source.path / 'package.json').is_file()
+
+        else:
+            raise NotImplementedError(
+                f'Unknown source type {source.__class__.__name__}'
+            )
 
     def relative_lockfile_dir(self, lockfile: Path) -> Path:
         return lockfile.parent.relative_to(self.lockfile_root)
