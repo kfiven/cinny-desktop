@@ -29,6 +29,8 @@ jobs:
       - name: Create cargo sources
         run: |
           python resources/flatpak-cargo-generator.py src-tauri/Cargo.lock -o cargo-sources.json
+      - run: rm -r resources/
+      - run: ls -a
       - name: Create node sources
         run: |
           flatpak-node-generator npm -r package-lock.json -o node-sources.json
