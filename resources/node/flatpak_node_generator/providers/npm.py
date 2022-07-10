@@ -19,6 +19,8 @@ import shlex
 import textwrap
 import types
 
+from yarl import URL
+
 from ..integrity import Integrity
 from ..manifest import ManifestGenerator
 from ..package import (
@@ -26,13 +28,18 @@ from ..package import (
     LocalSource,
     Package,
     PackageSource,
+    PackageURLSource,
+    RegistrySource,
     ResolvedSource,
-    UnresolvedSource,
 )
 from ..requests import Requests
 from ..url_metadata import RemoteUrlMetadata
 from . import LockfileProvider, ModuleProvider, ProviderFactory, RCFileProvider
 from .special import SpecialSourceProvider
+
+_NPM_CORGIDOC = (
+    'application/vnd.npm.install-v1+json; q=1.0, application/json; q=0.8, */*'
+)
 
 
 class NpmLockfileProvider(LockfileProvider):
@@ -55,6 +62,7 @@ class NpmLockfileProvider(LockfileProvider):
                 continue
 
             version: str = info['version']
+            version_url = URL(version)
             alias_match = self._ALIAS_RE.match(version)
             if alias_match is not None:
                 name, version = alias_match.groups()
@@ -68,16 +76,18 @@ class NpmLockfileProvider(LockfileProvider):
                     from_ = from_[match.end('prefix') :]
 
                 source = self.parse_git_source(version, from_)
-            elif version.startswith('file:'):
-                source = LocalSource(path=version[len('file:') :])
+            elif version_url.scheme == 'file':
+                source = LocalSource(path=version_url.path)
             else:
                 integrity = Integrity.parse(info['integrity'])
                 if 'resolved' in info:
                     source = ResolvedSource(
                         resolved=info['resolved'], integrity=integrity
                     )
+                elif version_url.scheme in {'http', 'https'}:
+                    source = PackageURLSource(resolved=version, integrity=integrity)
                 else:
-                    source = UnresolvedSource(integrity=integrity)
+                    source = RegistrySource(integrity=integrity)
 
             yield Package(name=name, version=version, source=source, lockfile=lockfile)
 
@@ -163,8 +173,14 @@ class NpmModuleProvider(ModuleProvider):
             / self.get_cacache_integrity_path(integrity)
         )
 
-    def add_index_entry(self, url: str, metadata: RemoteUrlMetadata) -> None:
+    def add_index_entry(
+        self,
+        url: str,
+        metadata: RemoteUrlMetadata,
+        request_headers: Dict[str, str] = {},
+    ) -> None:
         key = f'make-fetch-happen:request-cache:{url}'
+
         index_json = json.dumps(
             {
                 'key': key,
@@ -173,7 +189,7 @@ class NpmModuleProvider(ModuleProvider):
                 'size': metadata.size,
                 'metadata': {
                     'url': url,
-                    'reqHeaders': {},
+                    'reqHeaders': request_headers,
                     'resHeaders': {},
                 },
             }
@@ -187,7 +203,7 @@ class NpmModuleProvider(ModuleProvider):
         self.index_entries[index_path] = index
 
     async def resolve_source(self, package: Package) -> ResolvedSource:
-        assert isinstance(package.source, (UnresolvedSource, ResolvedSource))
+        assert isinstance(package.source, RegistrySource)
 
         # These results are going to be the same each time.
         if package.name not in self.registry_packages:
@@ -255,7 +271,7 @@ class NpmModuleProvider(ModuleProvider):
         self.all_lockfiles.add(package.lockfile)
         source = package.source
 
-        if isinstance(source, (UnresolvedSource, ResolvedSource)):
+        if isinstance(source, RegistrySource):
             source = await self.resolve_source(package)
             assert source.resolved is not None
             assert source.integrity is not None
@@ -268,6 +284,24 @@ class NpmModuleProvider(ModuleProvider):
             self.add_index_entry(source.resolved, metadata)
 
             await self.special_source_provider.generate_special_sources(package)
+
+        elif isinstance(source, PackageURLSource):
+            assert source.integrity is not None
+
+            self.gen.add_url_source(
+                url=source.resolved,
+                integrity=source.integrity,
+                destination=self.get_cacache_content_path(source.integrity),
+            )
+            self.add_index_entry(
+                url=source.resolved,
+                metadata=RemoteUrlMetadata(
+                    integrity=source.integrity,
+                    size=await RemoteUrlMetadata.get_size(
+                        source.resolved, cachable=True
+                    ),
+                ),
+            )
 
         # pyright: reportUnnecessaryIsInstance=false
         elif isinstance(source, GitSource):
@@ -304,7 +338,9 @@ class NpmModuleProvider(ModuleProvider):
             )
             content_path = self.get_cacache_content_path(metadata.integrity)
             self.gen.add_data_source(raw_data, content_path)
-            self.add_index_entry(index.url, metadata)
+            self.add_index_entry(
+                index.url, metadata, request_headers={'accept': _NPM_CORGIDOC}
+            )
 
         patch_commands: DefaultDict[Path, List[str]] = collections.defaultdict(
             lambda: []
