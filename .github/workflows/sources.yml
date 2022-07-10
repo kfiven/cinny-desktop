@@ -31,17 +31,17 @@ jobs:
           python resources/flatpak-cargo-generator.py src-tauri/Cargo.lock -o cargo-sources.json
       - name: Create node sources
         run: |
-          flatpak-node-generator npm -r package-lock.json -R 'package-lock.json' -R 'cinny/package-lock.json' -o node-sources.json
+          flatpak-node-generator npm -r package-lock.json -o node-sources.json
       - run: ls -a
       - name: Upload PR Info
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v3.0.1
         with:
           name: node-sources.json
           path: node-sources.json
-          retention-days: 1
+          retention-days: 10
       - name: Upload PR Info
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v3.0.1
         with:
           name: cargo-sources.json
           path: cargo-sources.json
-          retention-days: 1
+          retention-days: 10
