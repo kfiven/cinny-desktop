@@ -36,13 +36,13 @@ jobs:
           flatpak-node-generator npm -r package-lock.json -o node-sources.json
       - run: ls -a
       - name: Upload PR Info
-        uses: actions/upload-artifact@v3.0.1
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: node-sources.json
           path: node-sources.json
           retention-days: 10
       - name: Upload PR Info
-        uses: actions/upload-artifact@v3.0.1
+        uses: actions/upload-artifact@v3.1.0
         with:
           name: cargo-sources.json
           path: cargo-sources.json
