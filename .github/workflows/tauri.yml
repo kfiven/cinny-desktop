@@ -49,13 +49,13 @@ jobs:
       run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
     - name: Upload PR Info
       if: matrix.platform == 'macos-latest'
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v3.1.0
       with:
         name: cinny_${{ steps.vars.outputs.tag }}_x64.dmg
         path: src-tauri/target/release/bundle/dmg/cinny_${{ steps.vars.outputs.tag }}_x64.dmg
     - name: Upload PR Info
       if: matrix.platform == 'ubuntu-latest'
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v3.1.0
       with:
         name: cinny_${{ steps.vars.outputs.tag }}_amd64.deb
         path: src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
@@ -70,7 +70,7 @@ jobs:
       shell: pwsh
     - name: Upload PR Info
       if: matrix.platform == 'windows-latest'
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v3.1.0
       with:
         name: cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi
         path: src-tauri\target\release\bundle\msi\cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi
@@ -134,7 +134,7 @@ jobs:
   #         cd ..
   #         zip ${{ github.event.repository.name }}/${{ github.event.repository.name }}-${{ github.ref_name }}.zip ${{ github.event.repository.name }} -r
   #     - name: Upload PR Info
-  #       uses: actions/upload-artifact@v3.0.0
+  #       uses: actions/upload-artifact@v3.1.0
   #       with:
   #         name: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
   #         path: ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
