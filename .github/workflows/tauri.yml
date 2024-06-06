@@ -146,7 +146,7 @@ jobs:
         uses: actions-rs/toolchain@v1.0.7
         with:
           toolchain: stable
-          targets: x86_64-apple-darwin,aarch64-apple-darwin
+          target: x86_64-apple-darwin,aarch64-apple-darwin
       - name: Install cinny dependencies
         run: cd cinny && npm ci
       - name: Install tauri dependencies
