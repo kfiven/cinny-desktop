@@ -120,61 +120,9 @@ jobs:
             src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz
             src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz.sig
 
-  # macos-x86_64
-  macos-x86_64:
-    runs-on: macos-latest-large
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.1.6
-        with: 
-          submodules: true
-      - name: Get release
-        id: get_release
-        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup node
-        uses: actions/setup-node@v4.0.2
-        with:
-          node-version: 20.12.2
-          cache: 'npm'
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          target: x86_64-apple-darwin
-      - name: Install cinny dependencies
-        run: cd cinny && npm ci
-      - name: Install tauri dependencies
-        run: npm ci
-      - name: Build desktop app with Tauri
-        uses: tauri-apps/tauri-action@v0.5.9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
-          NODE_OPTIONS: "--max_old_space_size=4096"
-        with:
-          releaseId: ${{ steps.get_release.outputs.upload_url }}
-      - name: Get app version
-        id: vars
-        run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
-      - name: Move dmg
-        run: mv "src-tauri/target/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_x64.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg"
-      - name: Move app.tar.gz
-        run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz"
-      - name: Move app.tar.gz.sig
-        run: mv "src-tauri/target/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz.sig"
-      - name: Upload tagged release
-        uses: softprops/action-gh-release@a74c6b72af54cfa997e81df42d94703d6313a2d0
-        with:
-          files: |
-            src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg
-            src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz
-            src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz.sig
-
-  # macos-aarch64
-  macos-aarch64:
-    runs-on: macos-12
+  # macos-universal
+  macos-universal:
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
@@ -193,7 +141,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          target: aarch64-apple-darwin
+          target: aarch64-apple-darwin,x86_64-apple-darwin
       - name: Install cinny dependencies
         run: cd cinny && npm ci
       - name: Install tauri dependencies
@@ -215,19 +163,21 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
       - name: Move dmg
-        if: always()
-        run: mv "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Cinny_desktop-aarch64.dmg"
+        run: cp "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg"
+      - run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Cinny_desktop-aarch64.dmg"
       - name: Move app.tar.gz
-        if: always()
-        run: mv "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.app.tar.gz"
+        run: cp "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz"
+      - run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.app.tar.gz"
       - name: Move app.tar.gz.sig
-        if: always()
-        run: mv "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.app.tar.gz.sig"
+        run: cp "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz.sig"
+      - run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.app.tar.gz.sig"
       - name: Upload tagged release
-        if: always()
         uses: softprops/action-gh-release@a74c6b72af54cfa997e81df42d94703d6313a2d0
         with:
           files: |
+            src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg
+            src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz
+            src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz.sig
             src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Cinny_desktop-aarch64.dmg
             src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.tar.gz
             src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.tar.gz.sig
@@ -235,7 +185,7 @@ jobs:
   # Upload release.json
   release-update:
     if: always()
-    needs: [windows-x86_64, linux-x86_64, macos-x86_64, macos-aarch64]
+    needs: [windows-x86_64, linux-x86_64, macos-universal]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
