@@ -161,8 +161,8 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
       - name: Move dmg
-        run: cp "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg"
-      - run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_universal.dmg" "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Cinny_desktop-aarch64.dmg"
+        run: cp "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/release/bundle/dmg/Cinny_desktop-x86_64.dmg"
+      - run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ steps.vars.outputs.tag }}_aarch64.dmg" "src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/Cinny_desktop-aarch64.dmg"
       - name: Move app.tar.gz
         run: cp "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/release/bundle/macos/Cinny_desktop-x86_64.app.tar.gz"
       - run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/aarch64-apple-darwin/release/bundle/macos/Cinny_desktop-aarch64.app.tar.gz"
