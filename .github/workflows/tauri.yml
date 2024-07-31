@@ -145,6 +145,13 @@ jobs:
         with:
           releaseId: ${{ github.event.release.upload_url }}
           args: "--target universal-apple-darwin"
+      - name: Update Homebrew formula
+        uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+          no_fork: true
+          tap: cinnyapp/cinny-desktop
+          formula: cinny
       - name: Get app version
         id: vars
         run: echo "tag=$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')" >> $GITHUB_OUTPUT
@@ -161,7 +168,7 @@ jobs:
             src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg
             src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz
             src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig
-
+  
   # Upload release.json
   release-update:
     if: always()
