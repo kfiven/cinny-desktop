@@ -146,7 +146,7 @@ jobs:
           releaseId: ${{ github.event.release.upload_url }}
           args: "--target universal-apple-darwin"
       - name: Update Homebrew formula
-        uses: dawidd6/action-homebrew-bump-formula@v3
+        uses: dawidd6/action-homebrew-bump-formula@v5
         with:
           token: ${{secrets.GITHUB_TOKEN}}
           no_fork: true
