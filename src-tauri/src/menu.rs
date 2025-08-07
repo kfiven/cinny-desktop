@@ -1,41 +1,40 @@
-use tauri::{AboutMetadata, Menu, MenuItem, Submenu};
-//for macOS
-pub(crate) fn menu() -> Menu {
-    Menu::new()
-        .add_submenu(Submenu::new(
-            "Cinny",
-            Menu::new()
-                .add_native_item(MenuItem::About(
-                    "Cinny".to_string(),
-                    AboutMetadata::new(),
-                ))
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Hide)
-                .add_native_item(MenuItem::HideOthers)
-                .add_native_item(MenuItem::ShowAll)
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Quit),
-        ))
-        .add_submenu(Submenu::new(
-            "Edit",
-            Menu::new()
-                .add_native_item(MenuItem::Undo)
-                .add_native_item(MenuItem::Redo)
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Cut)
-                .add_native_item(MenuItem::Copy)
-                .add_native_item(MenuItem::Paste)
-                .add_native_item(MenuItem::SelectAll),
-        ))
-        .add_submenu(Submenu::new(
-            "View",
-            Menu::new()
-                .add_native_item(MenuItem::EnterFullScreen),
-        ))
-        .add_submenu(Submenu::new(
-            "Window",
-            Menu::new()
-                .add_native_item(MenuItem::Minimize)
-                .add_native_item(MenuItem::Zoom),
-        ))
+use tauri::menu::*;
+
+fn menu() -> Menu {
+tauri::Builder::default()
+    .setup(|app| {
+        let handle = app.handle();
+        let about = MenuBuilder::new(app)
+            .about(app)
+            .separator()
+            .hide()
+            .hide_others()
+            .show_all()
+            .separator()
+            .quit()
+            .build()?;
+        app.set_menu(about);
+
+        let edit = MenuBuilder::new(app)
+            .undo()
+            .redo()
+            .separator()
+            .cut()
+            .copy()
+            .paste()
+            .select_all()
+            .build()?;
+        app.set_menu(edit);
+
+        let view = MenuBuilder::new(app)
+            .fullscreen()
+            .build()?;
+        app.set_menu(view);
+
+        let window = MenuBuilder::new(app)
+            .minimize()
+            .build()?;
+        app.set_menu(window);
+        Ok(())
+    })
 }
