@@ -1,40 +1,67 @@
-use tauri::menu::*;
+use tauri::{AppHandle, Manager};
+use tauri::menu::{MenuBuilder, PredefinedMenuItem, SubmenuBuilder, MenuItemBuilder, CheckMenuItemBuilder};
 
-fn menu() -> Menu {
-tauri::Builder::default()
-    .setup(|app| {
-        let handle = app.handle();
-        let about = MenuBuilder::new(app)
-            .about(app)
+pub(crate) fn menu() -> impl FnOnce(&AppHandle) -> Result<(), tauri::Error> {
+    move |app| {
+        // Create the "Cinny" submenu
+        let cinny_submenu = SubmenuBuilder::new(app, "Cinny")
+            .item(&PredefinedMenuItem::about("Cinny", app)?)
             .separator()
-            .hide()
-            .hide_others()
-            .show_all()
+            .item(&PredefinedMenuItem::hide(app)?)
+            .item(&PredefinedMenuItem::hide_others(app)?)
+            .item(&PredefinedMenuItem::show_all(app)?)
             .separator()
-            .quit()
+            .item(&PredefinedMenuItem::quit(app)?)
             .build()?;
-        app.set_menu(about);
 
-        let edit = MenuBuilder::new(app)
-            .undo()
-            .redo()
+        // Create the "Edit" submenu
+        let edit_submenu = SubmenuBuilder::new(app, "Edit")
+            .item(&PredefinedMenuItem::undo(app)?)
+            .item(&PredefinedMenuItem::redo(app)?)
             .separator()
-            .cut()
-            .copy()
-            .paste()
-            .select_all()
+            .item(&PredefinedMenuItem::cut(app)?)
+            .item(&PredefinedMenuItem::copy(app)?)
+            .item(&PredefinedMenuItem::paste(app)?)
+            .item(&PredefinedMenuItem::select_all(app)?)
             .build()?;
-        app.set_menu(edit);
 
-        let view = MenuBuilder::new(app)
-            .fullscreen()
+        // Create the "View" submenu
+        let view_submenu = SubmenuBuilder::new(app, "View")
+            .item(MenuItemBuilder::with_id("enter_full_screen", "Enter Full Screen").build(app)?)
             .build()?;
-        app.set_menu(view);
 
-        let window = MenuBuilder::new(app)
-            .minimize()
+        // Create the "Window" submenu
+        let window_submenu = SubmenuBuilder::new(app, "Window")
+            .item(MenuItemBuilder::with_id("minimize", "Minimize").build(app)?)
+            .item(MenuItemBuilder::with_id("zoom", "Zoom").build(app)?)
             .build()?;
-        app.set_menu(window);
+
+        // Build the main menu
+        let menu = MenuBuilder::new(app)
+            .item(&cinny_submenu)
+            .item(&edit_submenu)
+            .item(&view_submenu)
+            .item(&window_submenu)
+            .build()?;
+
+        app.set_menu(menu)?;
+
+        // Handle menu events
+        app.on_menu_event(move |app, event| {
+            match event.id() {
+                "enter_full_screen" => {
+                    println!("Enter Full Screen triggered!");
+                }
+                "minimize" => {
+                    println!("Minimize triggered!");
+                }
+                "zoom" => {
+                    println!("Zoom triggered!");
+                }
+                _ => {}
+            }
+        });
+
         Ok(())
-    })
+    }
 }
