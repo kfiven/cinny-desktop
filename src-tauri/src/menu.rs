@@ -1,71 +1,42 @@
-use tauri::{
-    menu::{Menu, Submenu, MenuItem, NativeItem},
-    Manager, AppHandle, Runtime,
-};
+use tauri::{menu::{Menu, Submenu, MenuItem}, about, quit, Manager};
 
-pub(crate) fn build_menu<R: Runtime>(app: &AppHandle<R>) -> Menu<R> {
-    let about_metadata = tauri::menu::AboutMetadata::default();
-
+pub fn build_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Menu<R> {
     let app_menu = Submenu::new(
-        app,
-        "Cinny",
-        Menu::with_items(
-            app,
-            &[
-                MenuItem::Native(NativeItem::About("Cinny".into(), about_metadata)),
-                MenuItem::Native(NativeItem::Separator),
-                MenuItem::Native(NativeItem::Hide),
-                MenuItem::Native(NativeItem::HideOthers),
-                MenuItem::Native(NativeItem::ShowAll),
-                MenuItem::Native(NativeItem::Separator),
-                MenuItem::Native(NativeItem::Quit),
-            ],
-        ),
-        true,
+        "App",
+        Menu::new()
+            .add(about(app, "Cinny", "A matrix app"))
+            .add(MenuItem::separator())
+            .add(quit(app, "Quit", Some("CmdOrCtrl+Q")))
     );
 
     let edit_menu = Submenu::new(
-        app,
         "Edit",
-        Menu::with_items(
-            app,
-            &[
-                MenuItem::Native(NativeItem::Undo),
-                MenuItem::Native(NativeItem::Redo),
-                MenuItem::Native(NativeItem::Separator),
-                MenuItem::Native(NativeItem::Cut),
-                MenuItem::Native(NativeItem::Copy),
-                MenuItem::Native(NativeItem::Paste),
-                MenuItem::Native(NativeItem::SelectAll),
-            ],
-        ),
-        true,
+        Menu::new()
+            .add(MenuItem::undo(app, "Undo", None))
+            .add(MenuItem::redo(app, "Redo", None))
+            .add(MenuItem::separator())
+            .add(MenuItem::cut(app, "Cut", None))
+            .add(MenuItem::copy(app, "Copy", None))
+            .add(MenuItem::paste(app, "Paste", None))
+            .add(MenuItem::select_all(app, "Select All", None))
     );
 
     let view_menu = Submenu::new(
-        app,
         "View",
-        Menu::with_items(app, &[MenuItem::Native(NativeItem::EnterFullScreen)]),
-        true,
+        Menu::new()
+            .add(MenuItem::enter_fullscreen(app, "Fullscreen", None))
     );
 
     let window_menu = Submenu::new(
-        app,
         "Window",
-        Menu::with_items(
-            app,
-            &[
-                MenuItem::Native(NativeItem::Minimize),
-                MenuItem::Native(NativeItem::Zoom),
-            ],
-        ),
-        true,
+        Menu::new()
+            .add(MenuItem::minimize(app, "Minimize", None))
+            .add(MenuItem::zoom(app, "Zoom", None))
     );
 
-    Menu::with_items(app, &[
-        MenuItem::Submenu(app_menu),
-        MenuItem::Submenu(edit_menu),
-        MenuItem::Submenu(view_menu),
-        MenuItem::Submenu(window_menu),
-    ])
+    Menu::new()
+        .add_submenu(app_menu)
+        .add_submenu(edit_menu)
+        .add_submenu(view_menu)
+        .add_submenu(window_menu)
 }
