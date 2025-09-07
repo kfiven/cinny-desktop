@@ -1,5 +1,6 @@
-use tauri::{AboutMetadata, Menu, MenuItem, Submenu};
-//for macOS
+use tauri::menu::{AboutMetadata, Menu, MenuItem, Submenu};
+
+// macOS native menu
 pub(crate) fn menu() -> Menu {
     Menu::new()
         .add_submenu(Submenu::new(
