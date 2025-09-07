@@ -1,38 +1,71 @@
-use tauri::menu::{AboutMetadata, Menu, MenuItem, Submenu};
+use tauri::{
+    menu::{Menu, Submenu, MenuItem, NativeItem},
+    Manager, AppHandle, Runtime,
+};
 
-// macOS native menu
-pub(crate) fn menu() -> Menu {
-    Menu::new()
-        .add_submenu(Submenu::new(
-            "Cinny",
-            Menu::new()
-                .add_native_item(MenuItem::About("Cinny".to_string(), AboutMetadata::new()))
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Hide)
-                .add_native_item(MenuItem::HideOthers)
-                .add_native_item(MenuItem::ShowAll)
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Quit),
-        ))
-        .add_submenu(Submenu::new(
-            "Edit",
-            Menu::new()
-                .add_native_item(MenuItem::Undo)
-                .add_native_item(MenuItem::Redo)
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Cut)
-                .add_native_item(MenuItem::Copy)
-                .add_native_item(MenuItem::Paste)
-                .add_native_item(MenuItem::SelectAll),
-        ))
-        .add_submenu(Submenu::new(
-            "View",
-            Menu::new().add_native_item(MenuItem::EnterFullScreen),
-        ))
-        .add_submenu(Submenu::new(
-            "Window",
-            Menu::new()
-                .add_native_item(MenuItem::Minimize)
-                .add_native_item(MenuItem::Zoom),
-        ))
+pub(crate) fn build_menu<R: Runtime>(app: &AppHandle<R>) -> Menu<R> {
+    let about_metadata = tauri::menu::AboutMetadata::default();
+
+    let app_menu = Submenu::new(
+        app,
+        "Cinny",
+        Menu::with_items(
+            app,
+            &[
+                MenuItem::Native(NativeItem::About("Cinny".into(), about_metadata)),
+                MenuItem::Native(NativeItem::Separator),
+                MenuItem::Native(NativeItem::Hide),
+                MenuItem::Native(NativeItem::HideOthers),
+                MenuItem::Native(NativeItem::ShowAll),
+                MenuItem::Native(NativeItem::Separator),
+                MenuItem::Native(NativeItem::Quit),
+            ],
+        ),
+        true,
+    );
+
+    let edit_menu = Submenu::new(
+        app,
+        "Edit",
+        Menu::with_items(
+            app,
+            &[
+                MenuItem::Native(NativeItem::Undo),
+                MenuItem::Native(NativeItem::Redo),
+                MenuItem::Native(NativeItem::Separator),
+                MenuItem::Native(NativeItem::Cut),
+                MenuItem::Native(NativeItem::Copy),
+                MenuItem::Native(NativeItem::Paste),
+                MenuItem::Native(NativeItem::SelectAll),
+            ],
+        ),
+        true,
+    );
+
+    let view_menu = Submenu::new(
+        app,
+        "View",
+        Menu::with_items(app, &[MenuItem::Native(NativeItem::EnterFullScreen)]),
+        true,
+    );
+
+    let window_menu = Submenu::new(
+        app,
+        "Window",
+        Menu::with_items(
+            app,
+            &[
+                MenuItem::Native(NativeItem::Minimize),
+                MenuItem::Native(NativeItem::Zoom),
+            ],
+        ),
+        true,
+    );
+
+    Menu::with_items(app, &[
+        MenuItem::Submenu(app_menu),
+        MenuItem::Submenu(edit_menu),
+        MenuItem::Submenu(view_menu),
+        MenuItem::Submenu(window_menu),
+    ])
 }
