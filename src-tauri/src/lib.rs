@@ -14,7 +14,7 @@ pub fn run() {
 
     #[cfg(target_os = "macos")]
     {
-        builder = builder.menu(menu::menu(&builder.app_handle())); // pass AppHandle
+        builder = builder.menu(menu::menu());
     }
 
     builder
