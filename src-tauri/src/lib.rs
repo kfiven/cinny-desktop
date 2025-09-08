@@ -3,19 +3,19 @@
     windows_subsystem = "windows"
 )]
 
-#[cfg(target_os = "macos")]
-mod menu;
+mod menu; // Ensure this is present if building on macOS
 
 use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
 
 pub fn run() {
     let port: u16 = 44548;
     let context = tauri::generate_context!();
-
-    let builder = tauri::Builder::default();
+    let mut builder = tauri::Builder::default();
 
     #[cfg(target_os = "macos")]
-    let builder = builder.menu(menu::menu());
+    {
+        builder = builder.menu(menu::menu(&builder.app_handle())); // pass AppHandle
+    }
 
     builder
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
@@ -23,13 +23,11 @@ pub fn run() {
         .setup(move |app| {
             let url = format!("http://localhost:{}", port).parse().unwrap();
             let window_url = WebviewUrl::External(url);
-
             WebviewWindowBuilder::new(app, "main".to_string(), window_url)
                 .title("Cinny")
                 .build()?;
-
             Ok(())
         })
         .run(context)
-        .expect("error while running tauri application");
+        .expect("error while building tauri application");
 }
