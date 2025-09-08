@@ -1,68 +1,48 @@
-use tauri::{
-    menu::{
-        AboutMetadataBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder,
-    },
-    Menu,
+// src/menu.rs
+use tauri::menu::{
+  MenuBuilder, SubmenuBuilder, PredefinedMenuItem, MenuItemBuilder,
 };
+use tauri::AppHandle;
 
-pub fn menu() -> Menu {
-    MenuBuilder::new()
-        .items([
-            SubmenuBuilder::new(
-                "Cinny",
-                MenuBuilder::new()
-                    .items([
-                        PredefinedMenuItem::about("Cinny", AboutMetadataBuilder::new().build()).into(),
-                        PredefinedMenuItem::separator().into(),
-                        PredefinedMenuItem::hide().into(),
-                        PredefinedMenuItem::hide_others().into(),
-                        PredefinedMenuItem::show_all().into(),
-                        PredefinedMenuItem::separator().into(),
-                        PredefinedMenuItem::quit().into(),
-                    ])
-                    .build(),
-            )
-            .build()
-            .into(),
+pub fn build_menu(app: &AppHandle) -> tauri::menu::Menu {
+  let submenu_app = SubmenuBuilder::new(app, "Cinny")
+    .about(Some(Default::default()))
+    .separator()
+    .hide()
+    .hide_others()
+    .show_all()
+    .separator()
+    .quit()
+    .build()
+    .unwrap();
 
-            SubmenuBuilder::new(
-                "Edit",
-                MenuBuilder::new()
-                    .items([
-                        PredefinedMenuItem::undo().into(),
-                        PredefinedMenuItem::redo().into(),
-                        PredefinedMenuItem::separator().into(),
-                        PredefinedMenuItem::cut().into(),
-                        PredefinedMenuItem::copy().into(),
-                        PredefinedMenuItem::paste().into(),
-                        PredefinedMenuItem::select_all().into(),
-                    ])
-                    .build(),
-            )
-            .build()
-            .into(),
+  let submenu_edit = SubmenuBuilder::new(app, "Edit")
+    .undo()
+    .redo()
+    .separator()
+    .cut()
+    .copy()
+    .paste()
+    .select_all()
+    .build()
+    .unwrap();
 
-            SubmenuBuilder::new(
-                "View",
-                MenuBuilder::new()
-                    .items([
-                        PredefinedMenuItem::enter_fullscreen().into(),
-                    ])
-                    .build(),
-            )
-            .build()
-            .into(),
+  let submenu_view = SubmenuBuilder::new(app, "View")
+    .enter_fullscreen()
+    .build()
+    .unwrap();
 
-            SubmenuBuilder::new(
-                "Window",
-                MenuBuilder::new()
-                    .items([
-                        PredefinedMenuItem::minimize().into(),
-                        PredefinedMenuItem::zoom().into(),
-                    ])
-                    .build(),
-            )
-            .build()
-            .into(),
-        ])
+  let submenu_window = SubmenuBuilder::new(app, "Window")
+    .minimize()
+    .zoom()
+    .build()
+    .unwrap();
+
+  MenuBuilder::new(app)
+    .item(&submenu_app)
+    .item(&submenu_edit)
+    .item(&submenu_view)
+    .item(&submenu_window)
+    .build()
+    .unwrap()
 }
