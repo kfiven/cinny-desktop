@@ -1,7 +1,7 @@
 use tauri::menu::{MenuBuilder, SubmenuBuilder};
 use tauri::AppHandle;
 
-pub fn menu(app: &AppHandle) -> tauri::menu::Menu {
+pub fn menu() -> tauri::menu::Menu {
     let app_menu = SubmenuBuilder::new(app, "Cinny")
         .about(Some(Default::default()))
         .separator()
