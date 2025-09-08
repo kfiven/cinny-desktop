@@ -1,55 +1,68 @@
-use tauri::menu::{Menu, MenuItem, Submenu, MenuBuilder};
-use tauri::{AppHandle, Manager};
+use tauri::{
+    menu::{
+        AboutMetadataBuilder, MenuBuilder, MenuItemBuilder, PredefinedMenuItem, SubmenuBuilder,
+    },
+    Menu,
+};
 
-pub fn build_menu(app: &AppHandle) -> Menu {
-    let app_menu = Submenu::new(
-        app,
-        "App",
-        Menu::new(app)
-            .unwrap()
-            .append(MenuItem::new(app, "About", true).unwrap())
-            .append(MenuItem::separator(app).unwrap())
-            .append(MenuItem::new(app, "Quit", true).unwrap().with_id("quit").with_accelerator("CmdOrCtrl+Q")),
-        false,
-    );
+pub fn menu() -> Menu {
+    MenuBuilder::new()
+        .items([
+            SubmenuBuilder::new(
+                "Cinny",
+                MenuBuilder::new()
+                    .items([
+                        PredefinedMenuItem::about("Cinny", AboutMetadataBuilder::new().build()).into(),
+                        PredefinedMenuItem::separator().into(),
+                        PredefinedMenuItem::hide().into(),
+                        PredefinedMenuItem::hide_others().into(),
+                        PredefinedMenuItem::show_all().into(),
+                        PredefinedMenuItem::separator().into(),
+                        PredefinedMenuItem::quit().into(),
+                    ])
+                    .build(),
+            )
+            .build()
+            .into(),
 
-    let edit_menu = Submenu::new(
-        app,
-        "Edit",
-        Menu::new(app)
-            .unwrap()
-            .append(MenuItem::new(app, "Undo", true).unwrap().with_id("undo"))
-            .append(MenuItem::new(app, "Redo", true).unwrap().with_id("redo"))
-            .append(MenuItem::separator(app).unwrap())
-            .append(MenuItem::new(app, "Cut", true).unwrap().with_id("cut"))
-            .append(MenuItem::new(app, "Copy", true).unwrap().with_id("copy"))
-            .append(MenuItem::new(app, "Paste", true).unwrap().with_id("paste"))
-            .append(MenuItem::new(app, "Select All", true).unwrap().with_id("select_all")),
-        false,
-    );
+            SubmenuBuilder::new(
+                "Edit",
+                MenuBuilder::new()
+                    .items([
+                        PredefinedMenuItem::undo().into(),
+                        PredefinedMenuItem::redo().into(),
+                        PredefinedMenuItem::separator().into(),
+                        PredefinedMenuItem::cut().into(),
+                        PredefinedMenuItem::copy().into(),
+                        PredefinedMenuItem::paste().into(),
+                        PredefinedMenuItem::select_all().into(),
+                    ])
+                    .build(),
+            )
+            .build()
+            .into(),
 
-    let view_menu = Submenu::new(
-        app,
-        "View",
-        Menu::new(app)
-            .unwrap()
-            .append(MenuItem::new(app, "Enter Fullscreen", true).unwrap().with_id("fullscreen")),
-        false,
-    );
+            SubmenuBuilder::new(
+                "View",
+                MenuBuilder::new()
+                    .items([
+                        PredefinedMenuItem::enter_fullscreen().into(),
+                    ])
+                    .build(),
+            )
+            .build()
+            .into(),
 
-    let window_menu = Submenu::new(
-        app,
-        "Window",
-        Menu::new(app)
-            .unwrap()
-            .append(MenuItem::new(app, "Minimize", true).unwrap().with_id("minimize")),
-        false,
-    );
-
-    Menu::new(app)
-        .unwrap()
-        .append_submenu(app_menu)
-        .append_submenu(edit_menu)
-        .append_submenu(view_menu)
-        .append_submenu(window_menu)
+            SubmenuBuilder::new(
+                "Window",
+                MenuBuilder::new()
+                    .items([
+                        PredefinedMenuItem::minimize().into(),
+                        PredefinedMenuItem::zoom().into(),
+                    ])
+                    .build(),
+            )
+            .build()
+            .into(),
+        ])
 }
