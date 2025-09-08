@@ -1,48 +1,44 @@
-// src/menu.rs
-use tauri::menu::{
-  MenuBuilder, SubmenuBuilder, PredefinedMenuItem, MenuItemBuilder,
-};
+use tauri::menu::{MenuBuilder, SubmenuBuilder};
 use tauri::AppHandle;
 
-pub fn build_menu(app: &AppHandle) -> tauri::menu::Menu {
-  let submenu_app = SubmenuBuilder::new(app, "Cinny")
-    .about(Some(Default::default()))
-    .separator()
-    .hide()
-    .hide_others()
-    .show_all()
-    .separator()
-    .quit()
-    .build()
-    .unwrap();
+pub fn menu(app: &AppHandle) -> tauri::menu::Menu {
+    let app_menu = SubmenuBuilder::new(app, "Cinny")
+        .about(Some(Default::default()))
+        .separator()
+        .hide()
+        .hide_others()
+        .show_all()
+        .separator()
+        .quit()
+        .build()
+        .unwrap();
 
-  let submenu_edit = SubmenuBuilder::new(app, "Edit")
-    .undo()
-    .redo()
-    .separator()
-    .cut()
-    .copy()
-    .paste()
-    .select_all()
-    .build()
-    .unwrap();
+    let edit_menu = SubmenuBuilder::new(app, "Edit")
+        .undo()
+        .redo()
+        .separator()
+        .cut()
+        .copy()
+        .paste()
+        .select_all()
+        .build()
+        .unwrap();
 
-  let submenu_view = SubmenuBuilder::new(app, "View")
-    .enter_fullscreen()
-    .build()
-    .unwrap();
+    let view_menu = SubmenuBuilder::new(app, "View")
+        .fullscreen() // `.fullscreen()` works instead of `.enter_fullscreen()`
+        .build()
+        .unwrap();
 
-  let submenu_window = SubmenuBuilder::new(app, "Window")
-    .minimize()
-    .zoom()
-    .build()
-    .unwrap();
+    let window_menu = SubmenuBuilder::new(app, "Window")
+        .minimize()
+        .build() // no `.zoom()` method directly available
+        .unwrap();
 
-  MenuBuilder::new(app)
-    .item(&submenu_app)
-    .item(&submenu_edit)
-    .item(&submenu_view)
-    .item(&submenu_window)
-    .build()
-    .unwrap()
+    MenuBuilder::new(app)
+        .item(&app_menu)
+        .item(&edit_menu)
+        .item(&view_menu)
+        .item(&window_menu)
+        .build()
+        .unwrap()
 }
