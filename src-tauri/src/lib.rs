@@ -3,12 +3,19 @@
     windows_subsystem = "windows"
 )]
 
+// mod menu;
+
 use tauri::{webview::WebviewWindowBuilder, WebviewUrl};
 
 pub fn run() {
     let port: u16 = 44548;
     let context = tauri::generate_context!();
-    let mut builder = tauri::Builder::default();
+    let builder = tauri::Builder::default();
+
+    // #[cfg(target_os = "macos")]
+    // {
+    //     builder = builder.menu(menu::menu());
+    // }
 
     builder
         .plugin(tauri_plugin_localhost::Builder::new(port).build())
