@@ -1,19 +1,17 @@
-use tauri::menu::{MenuBuilder, SubmenuBuilder};
-use tauri::AppHandle;
+use tauri::menu::{MenuBuilder, PredefinedMenuItem, SubmenuBuilder};
 
-pub fn menu() -> tauri::menu::Menu {
-    let app_menu = SubmenuBuilder::new(app, "Cinny")
-        .about(Some(Default::default()))
+pub(crate) fn menu(app: &tauri::AppHandle) -> Result<tauri::menu::Menu<tauri::Wry>, tauri::Error> {
+    let cinny_submenu = SubmenuBuilder::new(app, "Cinny")
+        .item(&PredefinedMenuItem::about(app, Some("Cinny"), None)?)
         .separator()
         .hide()
         .hide_others()
         .show_all()
         .separator()
         .quit()
-        .build()
-        .unwrap();
+        .build()?;
 
-    let edit_menu = SubmenuBuilder::new(app, "Edit")
+    let edit_submenu = SubmenuBuilder::new(app, "Edit")
         .undo()
         .redo()
         .separator()
@@ -21,24 +19,23 @@ pub fn menu() -> tauri::menu::Menu {
         .copy()
         .paste()
         .select_all()
-        .build()
-        .unwrap();
+        .build()?;
 
-    let view_menu = SubmenuBuilder::new(app, "View")
-        .fullscreen()
-        .build()
-        .unwrap();
+    let view_submenu = SubmenuBuilder::new(app, "View")
+        .item(&PredefinedMenuItem::fullscreen(app, None)?)
+        .build()?;
 
-    let window_menu = SubmenuBuilder::new(app, "Window")
+    let window_submenu = SubmenuBuilder::new(app, "Window")
         .minimize()
-        .build()
-        .unwrap();
+        .item(&PredefinedMenuItem::maximize(app, None)?)
+        .build()?;
 
     MenuBuilder::new(app)
-        .item(&app_menu)
-        .item(&edit_menu)
-        .item(&view_menu)
-        .item(&window_menu)
+        .items(&[
+            &cinny_submenu,
+            &edit_submenu,
+            &view_submenu,
+            &window_submenu,
+        ])
         .build()
-        .unwrap()
 }
