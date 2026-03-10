@@ -5,6 +5,7 @@ on:
 
 jobs:
   release:
+    name: Trigger release
     runs-on: ubuntu-latest
     permissions:
       contents: write
