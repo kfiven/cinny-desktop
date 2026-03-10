@@ -2,6 +2,9 @@ name: "Publish Tauri App"
 on:
   release:
     types: [published]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   # Windows-x86_64
