@@ -48,6 +48,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Create zip including submodules
         run: |
@@ -58,7 +60,7 @@ jobs:
         with:
           tag_name: ${{ env.TAURI_VERSION }}
           files: |
-            ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
+            ${{ github.event.repository.name }}-${{ env.TAURI_VERSION }}.zip
 
   # Windows-x86_64
   windows-x86_64:
@@ -70,6 +72,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Setup node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -126,6 +130,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Setup node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -184,6 +190,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
           submodules: true
       - name: Setup node
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
@@ -230,12 +238,17 @@ jobs:
 
   # Upload release.json
   release-update:
-    if: always()
     needs: [windows-x86_64, linux-x86_64, macos-universal]
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with: 
+          ref: ${{ env.TAURI_VERSION }}
+          fetch-depth: 0
+          submodules: true
       - name: Install dependencies
         run: npm ci
       - name: Run release.json
