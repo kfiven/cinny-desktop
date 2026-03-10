@@ -39,6 +39,26 @@ jobs:
           TAG=$(git describe --tags --abbrev=0) 
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
+  zip-archive:
+    needs: semantic-release
+    env:
+      TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: true
+      - name: Create zip including submodules
+        run: |
+          cd ..
+          zip ${{ github.event.repository.name }}/${{ github.event.repository.name }}-${{ github.ref_name }}.zip ${{ github.event.repository.name }} -r
+      - name: Upload zip to release
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+        with:
+          files: |
+            ${{ github.event.repository.name }}-${{ github.ref_name }}.zip
+
   # Windows-x86_64
   windows-x86_64:
     needs: semantic-release
@@ -64,7 +84,7 @@ jobs:
       - name: Get app version (windows)
         run: |
           $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
-          $version = $json.package.version
+          $version = $json.version
           Write-Host "Version: $version"
       - name: Build desktop app with Tauri
         uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
@@ -122,7 +142,7 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Get app version
-        run: jq .package.version src-tauri/tauri.conf.json
+        run: jq .version src-tauri/tauri.conf.json
       - name: Build desktop app with Tauri
         uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
         env:
@@ -178,7 +198,7 @@ jobs:
       - name: Install tauri dependencies
         run: npm ci
       - name: Get app version
-        run: jq .package.version src-tauri/tauri.conf.json
+        run: jq .version src-tauri/tauri.conf.json
       - name: Build desktop app with Tauri
         uses: tauri-apps/tauri-action@73fb865345c54760d875b94642314f8c0c894afa # v0.6.1
         env:
