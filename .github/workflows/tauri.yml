@@ -99,16 +99,19 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
         continue-on-error: true
-      - name: Move msi
-        run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi" "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi"
-        shell: pwsh
-        continue-on-error: true
-      - name: Move msi.zip
-        run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi.zip" "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi.zip"
-        shell: pwsh
-        continue-on-error: true
-      - name: Move msi.zip.sig
-        run: Move-Item "src-tauri\target\release\bundle\msi\Cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi.zip.sig" "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64.msi.zip.sig"
+      - name: Move msi files
+        run: |
+          $version = $env:TAURI_VERSION.TrimStart('v')
+          $files = @(
+            "src-tauri\target\release\bundle\msi\Cinny_${version}_x64_en-US.msi",
+            "src-tauri\target\release\bundle\msi\Cinny_${version}_x64_en-US.msi.zip",
+            "src-tauri\target\release\bundle\msi\Cinny_${version}_x64_en-US.msi.zip.sig"
+          )
+          $destination = "src-tauri\target\release\bundle\msi\Cinny_desktop-x86_64"
+
+          foreach ($file in $files) {
+            Move-Item $file "$destination$($file.Substring($file.LastIndexOf('\')))"
+          }
         shell: pwsh
         continue-on-error: true
       - name: Upload tagged release
@@ -158,17 +161,30 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
           NODE_OPTIONS: "--max_old_space_size=4096"
         continue-on-error: true
-      - name: Move deb
-        run: mv "src-tauri/target/release/bundle/deb/Cinny_${{ env.TAURI_VERSION }}_amd64.deb" "src-tauri/target/release/bundle/deb/Cinny_desktop-x86_64.deb"
-        continue-on-error: true
-      - name: Move AppImage
-        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ env.TAURI_VERSION }}_amd64.AppImage" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage"
-        continue-on-error: true
-      - name: Move AppImage.tar.gz
-        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ env.TAURI_VERSION }}_amd64.AppImage.tar.gz" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz"
-        continue-on-error: true
-      - name: Move AppImage.tar.gz.sig
-        run: mv "src-tauri/target/release/bundle/appimage/Cinny_${{ env.TAURI_VERSION }}_amd64.AppImage.tar.gz.sig" "src-tauri/target/release/bundle/appimage/Cinny_desktop-x86_64.AppImage.tar.gz.sig"
+      - name: Move deb, appimage files
+        run: |
+          VERSION="${{ env.TAURI_VERSION }}"
+          VERSION="${VERSION/v/}"  # Remove the "v" prefix if it exists
+          files=(
+            "src-tauri/target/release/bundle/deb/Cinny_${VERSION}_amd64.deb"
+            "src-tauri/target/release/bundle/appimage/Cinny_${VERSION}_amd64.AppImage"
+            "src-tauri/target/release/bundle/appimage/Cinny_${VERSION}_amd64.AppImage.tar.gz"
+            "src-tauri/target/release/bundle/appimage/Cinny_${VERSION}_amd64.AppImage.tar.gz.sig"
+          )
+          destination_deb="src-tauri/target/release/bundle/deb"
+          destination_appimage="src-tauri/target/release/bundle/appimage"
+
+          for file in "${files[@]}"; do
+            if [[ "$file" == *.deb ]]; then
+              mv "$file" "${destination_deb}/Cinny_desktop-x86_64.deb"
+            elif [[ "$file" == *.AppImage ]]; then
+              mv "$file" "${destination_appimage}/Cinny_desktop-x86_64.AppImage"
+            elif [[ "$file" == *.tar.gz ]]; then
+              mv "$file" "${destination_appimage}/Cinny_desktop-x86_64.AppImage.tar.gz"
+            elif [[ "$file" == *.sig ]]; then
+              mv "$file" "${destination_appimage}/Cinny_desktop-x86_64.AppImage.tar.gz.sig"
+            fi
+          done
         continue-on-error: true
       - name: Upload tagged release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
@@ -218,14 +234,27 @@ jobs:
         with:
           args: "--target universal-apple-darwin"
         continue-on-error: true
-      - name: Move dmg
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${{ env.TAURI_VERSION }}_universal.dmg" "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_desktop-universal.dmg"
-        continue-on-error: true
-      - name: Move app.tar.gz
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz" "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz"
-        continue-on-error: true
-      - name: Move app.tar.gz.sig
-        run: mv "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny.app.tar.gz.sig" "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_desktop-universal.app.tar.gz.sig"
+      - name: Move files for macOS
+        run: |
+          VERSION="${{ env.TAURI_VERSION }}"
+          VERSION="${VERSION/v/}"  # Remove the "v" prefix if it exists
+          files=(
+            "src-tauri/target/universal-apple-darwin/release/bundle/dmg/Cinny_${VERSION}_universal.dmg"
+            "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_${VERSION}.app.tar.gz"
+            "src-tauri/target/universal-apple-darwin/release/bundle/macos/Cinny_${VERSION}.app.tar.gz.sig"
+          )
+          destination_dmg="src-tauri/target/universal-apple-darwin/release/bundle/dmg"
+          destination_app="src-tauri/target/universal-apple-darwin/release/bundle/macos"
+
+          for file in "${files[@]}"; do
+            if [[ "$file" == *.dmg ]]; then
+              mv "$file" "${destination_dmg}/Cinny_desktop-universal.dmg"
+            elif [[ "$file" == *.app.tar.gz ]]; then
+              mv "$file" "${destination_app}/Cinny_desktop-universal.app.tar.gz"
+            elif [[ "$file" == *.sig ]]; then
+              mv "$file" "${destination_app}/Cinny_desktop-universal.app.tar.gz.sig"
+            fi
+          done
         continue-on-error: true
       - name: Upload tagged release
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
@@ -238,7 +267,7 @@ jobs:
 
   # Upload release.json
   release-update:
-    needs: [windows-x86_64, linux-x86_64, macos-universal]
+    needs: [windows-x86_64, linux-x86_64, macos-universal, semantic-release]
     env:
       TAURI_VERSION: ${{ needs.semantic-release.outputs.version }}
     runs-on: ubuntu-latest
