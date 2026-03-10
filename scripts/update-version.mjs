@@ -42,7 +42,7 @@ fs.writeFileSync(cargoLock, lockContent);
 const tauriConfigPath = "src-tauri/tauri.conf.json";
 const tauriConfig = JSON.parse(fs.readFileSync(tauriConfigPath));
 
-tauriConfig.package.version = version;
+tauriConfig.version = version;
 
 fs.writeFileSync(
   tauriConfigPath,
