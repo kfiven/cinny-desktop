@@ -1,8 +1,8 @@
 name: "Publish Tauri App"
 on:
   workflow_run:
-      workflows: ["Trigger release"]
-      types: [completed]
+    workflows: ["Trigger release"]
+    types: [completed]
   release:
     types: [published]
   push:
