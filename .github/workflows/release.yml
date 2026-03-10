@@ -6,6 +6,9 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
 
     steps:
       - name: Checkout repo
@@ -24,6 +27,6 @@ jobs:
         run: npm ci
 
       - name: Run semantic-release
+        run: npm run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run semantic-release
