@@ -1,13 +1,13 @@
 name: "Publish Tauri App"
 on:
-  workflow_run:
-    workflows: ["Trigger release"]
-    types: [completed]
+  # workflow_run:
+  #   workflows: ["Trigger release"]
+  #   types: [completed]
   release:
     types: [published]
-  push:
-    tags:
-      - 'v*'
+  # push:
+  #   tags:
+  #     - 'v*'
 
 jobs:
   # Windows-x86_64
