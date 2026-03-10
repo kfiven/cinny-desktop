@@ -1,4 +1,4 @@
-# Cinny desktop v2
+# Cinny desktop
 
 <a href="https://github.com/cinnyapp/cinny-desktop/releases">
   <img alt="GitHub release downloads" src="https://img.shields.io/github/downloads/cinnyapp/cinny-desktop/total?style=social"></a>
