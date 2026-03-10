@@ -4,7 +4,9 @@ on:
   #   workflows: ["Trigger release"]
   #   types: [completed]
   release:
-    types: [published]
+    types: [created]
+  # release:
+  #   types: [published]
   # push:
   #   tags:
   #     - 'v*'
