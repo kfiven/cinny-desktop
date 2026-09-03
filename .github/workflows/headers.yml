@@ -34,7 +34,7 @@ jobs:
           year = os.environ["COPYRIGHT_YEAR"]
           holder = os.environ["COPYRIGHT_HOLDER"]
           license_id = os.environ["SPDX_LICENSE"]
-          link - os.environ["LINK"]
+          link = os.environ["LINK"]
 
           comment_prefixes = {
               ".py": "#",
