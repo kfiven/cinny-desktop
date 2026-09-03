@@ -1,0 +1,132 @@
+name: Add copyright headers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  copyright-headers:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add missing copyright headers
+        env:
+          PROJECT: "Cinny Project"
+          COPYRIGHT_YEAR: "2021-2026"
+          COPYRIGHT_HOLDER: "Ajay Bura"
+          SPDX_LICENSE: "AGPLv3"
+          LINK: "https://cinny.in"
+        run: |
+          python3 <<'PY'
+          import os
+          import subprocess
+          from pathlib import Path
+
+          project = os.environ["PROJECT"]
+          year = os.environ["COPYRIGHT_YEAR"]
+          holder = os.environ["COPYRIGHT_HOLDER"]
+          license_id = os.environ["SPDX_LICENSE"]
+          link - os.environ["LINK"]
+
+          comment_prefixes = {
+              ".py": "#",
+              ".sh": "#",
+              ".rb": "#",
+              ".yml": "#",
+              ".yaml": "#",
+              ".js": "//",
+              ".jsx": "//",
+              ".ts": "//",
+              ".tsx": "//",
+              ".java": "//",
+              ".go": "//",
+              ".rs": "//",
+              ".c": "//",
+              ".h": "//",
+              ".cpp": "//",
+              ".hpp": "//",
+              ".cs": "//",
+              ".php": "//",
+              ".swift": "//",
+              ".kt": "//",
+          }
+
+          excluded_prefixes = (
+              ".github/",
+              "vendor/",
+              "node_modules/",
+              "dist/",
+              "build/",
+          )
+
+          def make_header(prefix):
+              return (
+                  f"{prefix} {project}\n"
+                  f"{prefix} Copyright (c) {year} {holder}\n"
+                  f"{prefix} SPDX-License-Identifier: {license_id}\n"
+                  f"{prefix} {link}\n"
+                  "\n"
+              )
+
+          files = subprocess.check_output(
+              ["git", "ls-files"],
+              text=True
+          ).splitlines()
+
+          for filename in files:
+              path = Path(filename)
+
+              if not path.is_file():
+                  continue
+
+              if filename.startswith(excluded_prefixes):
+                  continue
+
+              prefix = comment_prefixes.get(path.suffix.lower())
+              if not prefix:
+                  continue
+
+              text = path.read_text(encoding="utf-8")
+
+              # Do not modify files that already have an SPDX or copyright notice.
+              first_lines = "\n".join(text.splitlines()[:20])
+              if "SPDX-License-Identifier:" in first_lines:
+                  continue
+              if "Copyright" in first_lines:
+                  continue
+
+              header = make_header(prefix)
+
+              # Preserve shebangs, such as #!/usr/bin/env python3.
+              if text.startswith("#!"):
+                  first_line, separator, remainder = text.partition("\n")
+                  updated = first_line + "\n" + header + remainder
+              else:
+                  updated = header + text
+
+              path.write_text(updated, encoding="utf-8")
+              print(f"Updated {filename}")
+          PY
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Add copyright headers"
+          branch: automation/copyright-headers
+          delete-branch: true
+          title: "chore: Add copyright headers"
+          body: |
+            This automated pull request adds missing copyright and SPDX license headers
+            to supported source files.
+          labels: |
+            automated
+            maintenance
