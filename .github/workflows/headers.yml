@@ -116,6 +116,4 @@ jobs:
           title: "chore: add SPDX headers"
           body: |
             This automated pull request adds missing SPDX license headers.
-          labels: |
-            automated
-            maintenance
+          labels: github_actions
