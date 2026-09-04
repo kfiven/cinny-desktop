@@ -22,7 +22,7 @@ jobs:
           PROJECT: "Cinny Project"
           CR_YEAR: "2021-2026"
           CR_HOLDER: "Ajay Bura"
-          SPDX_LICENSE: "AGPL-3.0-or-later"
+          SPDX_LICENSE: "AGPL-3.0-only"
           LINK: "https://cinny.in"
         run: |
           python3 <<'PY'
@@ -100,13 +100,7 @@ jobs:
                   continue
 
               header = make_header(style)
-
-              # Preserve a shebang if a script is added later.
-              if text.startswith("#!"):
-                  first_line, _, remainder = text.partition("\n")
-                  updated = first_line + "\n" + header + remainder
-              else:
-                  updated = header + text
+              updated = header + text
 
               path.write_text(updated, encoding="utf-8")
               print(f"Updated {filename}")
