@@ -1,4 +1,4 @@
-name: Add copyright headers
+name: Add SPDX headers
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  copyright-headers:
+  spdx-headers:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,12 +17,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Add missing copyright headers
+      - name: Add missing SPDX headers
         env:
           PROJECT: "Cinny Project"
-          COPYRIGHT_YEAR: "2021-2026"
-          COPYRIGHT_HOLDER: "Ajay Bura"
-          SPDX_LICENSE: "AGPLv3"
+          CR_YEAR: "2021-2026"
+          CR_HOLDER: "Ajay Bura"
+          SPDX_LICENSE: "AGPL-3.0-or-later"
           LINK: "https://cinny.in"
         run: |
           python3 <<'PY'
@@ -31,48 +31,42 @@ jobs:
           from pathlib import Path
 
           project = os.environ["PROJECT"]
-          year = os.environ["COPYRIGHT_YEAR"]
-          holder = os.environ["COPYRIGHT_HOLDER"]
+          year = os.environ["CR_YEAR"]
+          holder = os.environ["CR_HOLDER"]
           license_id = os.environ["SPDX_LICENSE"]
           link = os.environ["LINK"]
 
-          comment_prefixes = {
-              ".py": "#",
-              ".sh": "#",
-              ".rb": "#",
-              ".yml": "#",
-              ".yaml": "#",
-              ".js": "//",
-              ".jsx": "//",
-              ".ts": "//",
-              ".tsx": "//",
-              ".java": "//",
-              ".go": "//",
-              ".rs": "//",
-              ".c": "//",
-              ".h": "//",
-              ".cpp": "//",
-              ".hpp": "//",
-              ".cs": "//",
-              ".php": "//",
-              ".swift": "//",
-              ".kt": "//",
+          comment_styles = {
+              ".ts": "line",
+              ".tsx": "line",
+              ".rs": "line",
+              ".css": "block",
           }
 
           excluded_prefixes = (
               ".github/",
-              "vendor/",
               "node_modules/",
               "dist/",
               "build/",
           )
 
-          def make_header(prefix):
+          def make_header(style):
+              if style == "block":
+                  return (
+                      "/*\n"
+                      f" * {project}\n"
+                      f" * Copyright (c) {year} {holder}\n"
+                      f" * SPDX-License-Identifier: {license_id}\n"
+                      f" * {link}\n"
+                      " */\n"
+                      "\n"
+                  )
+
               return (
-                  f"{prefix} {project}\n"
-                  f"{prefix} Copyright (c) {year} {holder}\n"
-                  f"{prefix} SPDX-License-Identifier: {license_id}\n"
-                  f"{prefix} {link}\n"
+                  f"// {project}\n"
+                  f"// Copyright (c) {year} {holder}\n"
+                  f"// SPDX-License-Identifier: {license_id}\n"
+                  f"// {link}\n"
                   "\n"
               )
 
@@ -90,24 +84,26 @@ jobs:
               if filename.startswith(excluded_prefixes):
                   continue
 
-              prefix = comment_prefixes.get(path.suffix.lower())
-              if not prefix:
+              style = comment_styles.get(path.suffix.lower())
+              if not style:
                   continue
 
               text = path.read_text(encoding="utf-8")
 
-              # Do not modify files that already have an SPDX or copyright notice.
+              # Skip files that already have a header.
               first_lines = "\n".join(text.splitlines()[:20])
+
               if "SPDX-License-Identifier:" in first_lines:
                   continue
+
               if "Copyright" in first_lines:
                   continue
 
-              header = make_header(prefix)
+              header = make_header(style)
 
-              # Preserve shebangs, such as #!/usr/bin/env python3.
+              # Preserve a shebang if a script is added later.
               if text.startswith("#!"):
-                  first_line, separator, remainder = text.partition("\n")
+                  first_line, _, remainder = text.partition("\n")
                   updated = first_line + "\n" + header + remainder
               else:
                   updated = header + text
@@ -117,16 +113,15 @@ jobs:
           PY
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: Add copyright headers"
-          branch: automation/copyright-headers
+          commit-message: "chore: add SPDX headers"
+          branch: automation/spdx-headers
           delete-branch: true
-          title: "chore: Add copyright headers"
+          title: "chore: add SPDX headers"
           body: |
-            This automated pull request adds missing copyright and SPDX license headers
-            to supported source files.
+            This automated pull request adds missing SPDX license headers.
           labels: |
             automated
             maintenance
