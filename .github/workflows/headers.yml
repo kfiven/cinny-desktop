@@ -71,7 +71,10 @@ jobs:
       
               if filename.startswith(excluded_prefixes):
                   continue
-      
+
+              if path.parent == Path("."):
+                  continue
+
               if path.suffix.lower() not in {".ts", ".tsx", ".rs", ".css"}:
                   continue
       
