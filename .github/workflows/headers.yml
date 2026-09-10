@@ -53,7 +53,7 @@ jobs:
                   f"SPDX-License-Identifier: {license_id}\n"
                   f"{link}\n"
                   "\n"
-                  f"{license_text}\n"
+                  f"{license_text}"
                   "*/\n"
                   "\n"
               )
