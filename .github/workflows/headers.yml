@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -24,6 +24,7 @@ jobs:
           CR_HOLDER: "Ajay Bura"
           SPDX_LICENSE: "AGPL-3.0-only"
           LINK: "https://cinny.in"
+          TEXT: "Please see LICENSE files in the repository root for full details."
         run: |
           python3 <<'PY'
           import os
@@ -35,6 +36,7 @@ jobs:
           holder = os.environ["CR_HOLDER"]
           license_id = os.environ["SPDX_LICENSE"]
           link = os.environ["LINK"]
+          license_text = os.environ["TEXT"]
       
           excluded_prefixes = (
               ".github/",
@@ -51,7 +53,7 @@ jobs:
                   f"SPDX-License-Identifier: {license_id}\n"
                   f"{link}\n"
                   "\n"
-                  "Please see LICENSE files in the repository root for full details.\n"
+                  f"{license_text}\n"
                   "*/\n"
                   "\n"
               )
@@ -91,7 +93,7 @@ jobs:
           PY
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: add SPDX headers"
